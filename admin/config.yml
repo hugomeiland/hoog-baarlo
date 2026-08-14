@@ -1,0 +1,61 @@
+# yaml-language-server: $schema=https://unpkg.com/@sveltia/cms/schema/sveltia-cms.json
+
+backend:
+  name: github
+  repo: hugomeiland/hoog-baarlo
+  branch: main
+
+site_url: https://hugomeiland.github.io/hoog-baarlo
+app_title: Hoog Baarlo
+
+media_folder: /media
+public_folder: /media
+
+slug:
+  encoding: ascii
+  clean_accents: true
+
+singletons:
+  - name: home
+    label: Home
+    icon: home
+    file: content/home.yaml
+    fields:
+      - { label: Titel, name: title, widget: string }
+      - { label: Tagline, name: tagline, widget: string }
+      - { label: Intro, name: intro, widget: richtext }
+      - { label: Hero, name: hero, widget: image, required: false }
+
+collections:
+  - name: berichten
+    label: Berichten
+    label_singular: Bericht
+    icon: newspaper
+    folder: /content/berichten
+    extension: md
+    slug: '{{slug}}'
+    preview_path: /hoog-baarlo/berichten/{{slug}}/
+    summary: '{{title}} — {{date}}'
+    sortable_fields: [date, title]
+    fields:
+      - { label: Titel, name: title, widget: string }
+      - { label: Datum, name: date, widget: datetime, type: date, picker_utc: true }
+      - label: Categorie
+        name: category
+        widget: select
+        options:
+          - { label: Nieuws, value: nieuws }
+          - { label: Foto's, value: fotos }
+      - { label: Afbeelding, name: image, widget: image, required: false }
+      - { label: Inhoud, name: body, widget: richtext }
+  - name: pages
+    label: Pagina's
+    icon: description
+    files:
+      - name: over
+        label: Over
+        file: content/pages/over.md
+        preview_path: /hoog-baarlo/over/
+        fields:
+          - { label: Titel, name: title, widget: string }
+          - { label: Inhoud, name: body, widget: richtext }
