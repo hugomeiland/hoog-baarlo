@@ -26,7 +26,9 @@ python3 -m http.server 4000 --directory _site
 
 CMS UI: [http://127.0.0.1:4000/admin/](http://127.0.0.1:4000/admin/)
 
-On a local server the GitHub backend still talks to this repository. Sign in with a GitHub personal access token (the login screen has a link with the right scopes).
+Sign in with **Sign In Using Access Token**. The prompt includes a GitHub link with the required `repo` scope. Create a token, paste it, and the CMS stores it in the browser.
+
+The blue GitHub OAuth button is disabled on purpose: that flow uses Netlify’s OAuth client, which 404s on GitHub Pages.
 
 ## Deploy
 

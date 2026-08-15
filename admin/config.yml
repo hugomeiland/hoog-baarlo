@@ -4,6 +4,7 @@ backend:
   name: github
   repo: hugomeiland/hoog-baarlo
   branch: main
+  auth_methods: [token]
 
 site_url: https://hugomeiland.github.io/hoog-baarlo
 app_title: Hoog Baarlo
