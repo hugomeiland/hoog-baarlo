@@ -52,12 +52,16 @@ collections:
       - { label: Inhoud, name: body, widget: richtext }
   - name: pages
     label: Pagina's
+    label_singular: Pagina
     icon: description
-    files:
-      - name: over
-        label: Over
-        file: content/pages/over.md
-        preview_path: /hoog-baarlo/over/
-        fields:
-          - { label: Titel, name: title, widget: string }
-          - { label: Inhoud, name: body, widget: richtext }
+    folder: /content/pages
+    extension: md
+    slug: '{{slug}}'
+    preview_path: /hoog-baarlo/{{slug}}/
+    summary: '{{title}}'
+    sortable_fields: [title, weight]
+    fields:
+      - { label: Titel, name: title, widget: string }
+      - { label: In menu, name: menu, widget: boolean, default: true }
+      - { label: Volgorde, name: weight, widget: number, value_type: int, required: false, default: 10 }
+      - { label: Inhoud, name: body, widget: richtext }

@@ -16,12 +16,7 @@ ROOT = Path(__file__).resolve().parent.parent
 CONTENT = ROOT / "content"
 SITE = ROOT / "_site"
 STATIC_DIRS = ("admin", "assets", "media")
-
-NAV = [
-    ("Home", ""),
-    ("Berichten", "berichten/"),
-    ("Over", "over/"),
-]
+RESERVED_SLUGS = {"admin", "assets", "berichten", "media"}
 
 
 def load_yaml(path: Path) -> dict:
@@ -46,9 +41,11 @@ def md_to_html(text: str | None) -> str:
     return markdown.markdown(text, extensions=["nl2br", "sane_lists"])
 
 
-def rewrite_root_urls(html: str, depth: int) -> str:
+def rewrite_root_urls(html: str, depth: int, slugs: list[str] | None = None) -> str:
     prefix = "../" * depth
-    return re.sub(r'(?<=["\'(])/((?:media|admin|berichten|over|assets)/)', rf"{prefix}\1", html)
+    names = ["media", "admin", "berichten", "assets", *(slugs or [])]
+    pattern = "|".join(re.escape(name) for name in names)
+    return re.sub(rf'(?<=["\'(])/((?:{pattern})/)', rf"{prefix}\1", html)
 
 
 def asset(depth: int, path: str) -> str:
@@ -109,11 +106,24 @@ def bericht_card(post: dict, *, depth: int, href_value: str) -> str:
     )
 
 
-def layout(*, title: str, description: str, depth: int, active: str, body: str) -> str:
+def menu_pages(pages: list[dict]) -> list[dict]:
+    visible = [page for page in pages if page.get("menu", True) is not False]
+    visible.sort(key=lambda page: (int(page.get("weight") or 10), str(page.get("title") or page["slug"]).lower()))
+    return visible
+
+
+def nav_items(pages: list[dict]) -> list[tuple[str, str]]:
+    items = [("Home", ""), ("Berichten", "berichten/")]
+    for page in menu_pages(pages):
+        items.append((str(page.get("title") or page["slug"]), f"{page['slug']}/"))
+    return items
+
+
+def layout(*, title: str, description: str, depth: int, active: str, body: str, pages: list[dict]) -> str:
     nav = []
-    for label, path in NAV:
+    for label, path in nav_items(pages):
         cls = ' class="is-active"' if label == active else ""
-        nav.append(f'<li><a href="{href(depth, path)}"{cls}>{label}</a></li>')
+        nav.append(f'<li><a href="{href(depth, path)}"{cls}>{html.escape(label)}</a></li>')
     nav_html = "".join(nav)
     return f"""<!DOCTYPE html>
 <html lang="nl">
@@ -167,7 +177,12 @@ def build() -> None:
     home = load_yaml(CONTENT / "home.yaml")
     posts = [parse_markdown(path) for path in sorted((CONTENT / "berichten").glob("*.md"))]
     posts.sort(key=lambda item: str(item.get("date") or ""), reverse=True)
-    over = parse_markdown(CONTENT / "pages" / "over.md")
+    pages = [
+        parse_markdown(path)
+        for path in sorted((CONTENT / "pages").glob("*.md"))
+        if path.stem not in RESERVED_SLUGS
+    ]
+    page_slugs = [page["slug"] for page in pages]
 
     site_title = home.get("title") or "Hoog Baarlo"
     tagline = home.get("tagline") or ""
@@ -189,7 +204,7 @@ def build() -> None:
     <div class="hero__copy">
       <h1>{site_title}</h1>
       <p>{tagline}</p>
-      {rewrite_root_urls(md_to_html(home.get("intro")), 0)}
+      {rewrite_root_urls(md_to_html(home.get("intro")), 0, page_slugs)}
     </div>
     {visual}
   </section>
@@ -205,6 +220,7 @@ def build() -> None:
         depth=0,
         active="Home",
         body=home_body,
+        pages=pages,
     ))
 
     list_cards = [
@@ -222,12 +238,13 @@ def build() -> None:
       {"\n      ".join(list_cards) or "<p>Nog geen berichten.</p>"}
     </div>
   </section>""",
+        pages=pages,
     ))
 
     for post in posts:
         img = media_src(post.get("image"), 2)
         figure = f'<figure><img src="{img}" alt="{post.get("title", "")}"></figure>' if img else ""
-        body_html = rewrite_root_urls(md_to_html(post.get("body")), 2)
+        body_html = rewrite_root_urls(md_to_html(post.get("body")), 2, page_slugs)
         write_page(f"berichten/{post['slug']}/index.html", layout(
             title=f"{post.get('title', 'Bericht')} · {site_title}",
             description=description,
@@ -235,7 +252,7 @@ def build() -> None:
             active="Berichten",
             body=f"""  <section class="section">
     <div class="page-head">
-      <h1>{post.get("title", "")}</h1>
+      <h1>{html.escape(str(post.get("title", "")))}</h1>
       <p class="meta">{format_date(post.get("date"))}</p>
     </div>
     <div class="prose">
@@ -243,20 +260,23 @@ def build() -> None:
       {body_html}
     </div>
   </section>""",
+            pages=pages,
         ))
 
-    write_page("over/index.html", layout(
-        title=f"{over.get('title', 'Over')} · {site_title}",
-        description=description,
-        depth=1,
-        active="Over",
-        body=f"""  <section class="section">
-    <div class="page-head"><h1>{over.get("title", "Over")}</h1></div>
+    for page in pages:
+        write_page(f"{page['slug']}/index.html", layout(
+            title=f"{page.get('title', page['slug'])} · {site_title}",
+            description=description,
+            depth=1,
+            active=str(page.get("title") or page["slug"]),
+            body=f"""  <section class="section">
+    <div class="page-head"><h1>{html.escape(str(page.get("title") or page["slug"]))}</h1></div>
     <div class="prose">
-      {rewrite_root_urls(md_to_html(over.get("body")), 1)}
+      {rewrite_root_urls(md_to_html(page.get("body")), 1, page_slugs)}
     </div>
   </section>""",
-    ))
+            pages=pages,
+        ))
 
 
 if __name__ == "__main__":

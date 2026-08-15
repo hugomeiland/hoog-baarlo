@@ -10,7 +10,7 @@ Repo: [hugomeiland/hoog-baarlo](https://github.com/hugomeiland/hoog-baarlo)
 |------|---------|
 | `/` | Home (singleton `content/home.yaml`) |
 | `/berichten/` | Berichten from `content/berichten/` |
-| `/over/` | Over-pagina (`content/pages/over.md`) |
+| `/{pagina}/` | Pagina's from `content/pages/` (CMS: Nieuw) |
 | `/admin/` | Sveltia CMS |
 
 Edits in the CMS are committed to this repository. GitHub Actions then overlays that content onto HTML and deploys GitHub Pages.
