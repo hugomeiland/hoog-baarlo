@@ -48,6 +48,7 @@ collections:
           - { label: Nieuws, value: nieuws }
           - { label: Foto's, value: fotos }
       - { label: Afbeelding, name: image, widget: image, required: false }
+      - { label: Samenvatting, name: summary, widget: text, required: false, maxlength: 200 }
       - { label: Inhoud, name: body, widget: richtext }
   - name: pages
     label: Pagina's

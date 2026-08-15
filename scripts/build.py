@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import html
 import re
 import shutil
 from datetime import date, datetime
@@ -79,6 +80,35 @@ def format_date(value) -> str:
     return str(value or "")
 
 
+def excerpt(post: dict, limit: int = 180) -> str:
+    text = str(post.get("summary") or "").strip()
+    if not text:
+        text = re.sub(r"[#*_>`\[\]()]+", " ", str(post.get("body") or ""))
+        text = re.sub(r"\s+", " ", text).strip()
+    if len(text) > limit:
+        text = text[: limit - 1].rsplit(" ", 1)[0] + "…"
+    return text
+
+
+def bericht_card(post: dict, *, depth: int, href_value: str) -> str:
+    title = html.escape(str(post.get("title") or "Bericht"))
+    summary = html.escape(excerpt(post))
+    date_label = html.escape(format_date(post.get("date")))
+    img = media_src(post.get("image"), depth)
+    classes = "bericht bericht--has-image" if img else "bericht"
+    img_html = f'<img src="{html.escape(img)}" alt="">' if img else ""
+    summary_html = f'<p class="excerpt">{summary}</p>' if summary else ""
+    return (
+        f'<a class="{classes}" href="{html.escape(href_value)}">'
+        f"{img_html}"
+        f'<div class="bericht__body">'
+        f"<h3>{title}</h3>"
+        f'<p class="meta">{date_label}</p>'
+        f"{summary_html}"
+        f"</div></a>"
+    )
+
+
 def layout(*, title: str, description: str, depth: int, active: str, body: str) -> str:
     nav = []
     for label, path in NAV:
@@ -149,14 +179,10 @@ def build() -> None:
     else:
         visual = '<div class="hero__visual hero__visual--empty" aria-hidden="true"></div>'
 
-    cards = []
-    for post in posts[:8]:
-        img = media_src(post.get("image"), 0)
-        img_html = f'<img src="{img}" alt="{post.get("title", "")}">' if img else ""
-        url = href(0, f"berichten/{post['slug']}/")
-        cards.append(
-            f'<a class="card" href="{url}">{img_html}<span>{post.get("title", "")}</span></a>'
-        )
+    cards = [
+        bericht_card(post, depth=0, href_value=href(0, f"berichten/{post['slug']}/"))
+        for post in posts[:8]
+    ]
     cards_html = "\n      ".join(cards) or "<p>Nog geen berichten.</p>"
 
     home_body = f"""  <section class="hero">
@@ -169,7 +195,7 @@ def build() -> None:
   </section>
   <section class="section">
     <h2>Berichten</h2>
-    <div class="grid">
+    <div class="berichten">
       {cards_html}
     </div>
   </section>"""
@@ -181,14 +207,10 @@ def build() -> None:
         body=home_body,
     ))
 
-    list_cards = []
-    for post in posts:
-        img = media_src(post.get("image"), 1)
-        img_html = f'<img src="{img}" alt="{post.get("title", "")}">' if img else ""
-        list_cards.append(
-            f'<a class="card" href="{post["slug"]}/">'
-            f"{img_html}<span>{post.get('title', '')}</span></a>"
-        )
+    list_cards = [
+        bericht_card(post, depth=1, href_value=f"{post['slug']}/")
+        for post in posts
+    ]
     write_page("berichten/index.html", layout(
         title=f"Berichten · {site_title}",
         description=description,
@@ -196,7 +218,7 @@ def build() -> None:
         active="Berichten",
         body=f"""  <section class="section">
     <div class="page-head"><h1>Berichten</h1></div>
-    <div class="grid">
+    <div class="berichten">
       {"\n      ".join(list_cards) or "<p>Nog geen berichten.</p>"}
     </div>
   </section>""",

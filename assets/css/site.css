@@ -1,10 +1,10 @@
 :root {
-  --moss: #1f3a2a;
-  --leaf: #3f6b4a;
-  --mist: #e7efe4;
-  --bark: #2a2118;
-  --sand: #f4efe6;
-  --muted: #5e6b60;
+  --moss: #163524;
+  --leaf: #2f6b3e;
+  --mist: #d7edd4;
+  --bark: #102016;
+  --cream: #eef8ec;
+  --muted: #2d4a34;
   --font-display: "Cormorant Garamond", Georgia, serif;
   --font-body: "Literata", Georgia, serif;
 }
@@ -12,20 +12,20 @@
 html, body { margin: 0; min-height: 100%; }
 body {
   font-family: var(--font-body);
-  color: var(--bark);
+  color: var(--cream);
   background:
-    radial-gradient(90% 60% at 100% 0%, #d5e4d2 0%, transparent 50%),
-    linear-gradient(180deg, var(--sand) 0%, #ebe4d6 100%);
+    radial-gradient(90% 55% at 100% 0%, #b7ddb0 0%, transparent 52%),
+    linear-gradient(180deg, #7fb077 0%, #4e8a55 48%, #2f6b3e 100%);
   line-height: 1.55;
 }
-a { color: var(--leaf); text-decoration-thickness: 1px; text-underline-offset: 0.18em; }
-a:hover { color: var(--moss); }
+a { color: var(--mist); text-decoration-thickness: 1px; text-underline-offset: 0.18em; }
+a:hover { color: var(--cream); }
 .site-header {
   display: flex; align-items: baseline; justify-content: space-between;
   gap: 1rem; flex-wrap: wrap;
   padding: 1.25rem clamp(1.25rem, 4vw, 3rem);
-  border-bottom: 1px solid rgba(31,58,42,.12);
-  background: rgba(244,239,230,.85);
+  border-bottom: 1px solid rgba(16,32,22,.18);
+  background: rgba(22, 53, 36, .92);
   backdrop-filter: blur(8px);
   position: sticky; top: 0; z-index: 10;
 }
@@ -33,16 +33,16 @@ a:hover { color: var(--moss); }
   font-family: var(--font-display);
   font-size: clamp(1.5rem, 3vw, 2rem);
   font-weight: 600;
-  color: var(--moss);
+  color: var(--cream);
   text-decoration: none;
   letter-spacing: -0.02em;
 }
 .nav { display: flex; gap: 1.25rem; list-style: none; margin: 0; padding: 0; }
 .nav a {
-  color: var(--bark); text-decoration: none; font-size: .95rem;
+  color: var(--mist); text-decoration: none; font-size: .95rem;
   border-bottom: 2px solid transparent; padding-bottom: .1rem;
 }
-.nav a:hover, .nav a.is-active { border-bottom-color: var(--leaf); color: var(--moss); }
+.nav a:hover, .nav a.is-active { border-bottom-color: #cfe8c8; color: var(--cream); }
 main { padding: 0 0 4rem; }
 .hero {
   display: grid;
@@ -60,11 +60,11 @@ main { padding: 0 0 4rem; }
   font-weight: 600;
   font-size: clamp(2.4rem, 5vw, 3.6rem);
   line-height: 1.05;
-  color: var(--moss);
+  color: var(--cream);
 }
 .hero__copy p {
   margin: 1rem 0 0;
-  color: var(--muted);
+  color: var(--mist);
   font-size: 1.1rem;
   max-width: 36ch;
 }
@@ -86,27 +86,47 @@ main { padding: 0 0 4rem; }
 .section h2 {
   font-family: var(--font-display);
   font-size: clamp(1.8rem, 3vw, 2.3rem);
-  color: var(--moss);
+  color: var(--cream);
   margin: 0 0 1.25rem;
   font-weight: 600;
 }
-.grid {
+.berichten {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 1.25rem;
+  gap: 1rem;
 }
-@media (min-width: 900px) {
-  .grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.bericht {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0;
+  text-decoration: none;
+  color: inherit;
+  background: var(--cream);
+  border: 1px solid rgba(16,32,22,.12);
 }
-.card {
-  display: block; text-decoration: none; color: inherit;
-  background: #fff8ef; border: 1px solid rgba(31,58,42,.1);
+.bericht:hover { border-color: rgba(16,32,22,.28); }
+.bericht--has-image {
+  grid-template-columns: minmax(7rem, 10rem) minmax(0, 1fr);
 }
-.card img { width: 100%; aspect-ratio: 3/4; object-fit: cover; display: block; }
-.card span {
-  display: block; padding: .85rem 1rem 1.1rem;
+.bericht img {
+  width: 100%;
+  height: 100%;
+  min-height: 8rem;
+  object-fit: cover;
+  display: block;
+}
+.bericht__body { padding: 1rem 1.15rem 1.2rem; }
+.bericht__body h3 {
+  margin: 0;
   font-family: var(--font-display);
-  font-size: 1.15rem; color: var(--moss);
+  font-size: 1.35rem;
+  font-weight: 600;
+  color: var(--moss);
+}
+.bericht__body .meta { margin: .35rem 0 .55rem; }
+.bericht__body p.excerpt {
+  margin: 0;
+  color: var(--muted);
+  font-size: 1rem;
 }
 .prose {
   max-width: 42rem;
@@ -120,18 +140,20 @@ main { padding: 0 0 4rem; }
   margin: 0;
   font-family: var(--font-display);
   font-size: clamp(2rem, 4vw, 2.8rem);
-  color: var(--moss);
+  color: var(--cream);
 }
-.meta { color: var(--muted); font-size: .92rem; margin-top: .4rem; }
+.meta { color: var(--mist); font-size: .92rem; margin-top: .4rem; }
+.bericht__body .meta { color: var(--muted); }
 .site-footer {
   margin-top: 3rem;
   padding: 1.5rem clamp(1.25rem, 4vw, 3rem) 2.5rem;
-  color: var(--muted);
+  color: var(--mist);
   font-size: .9rem;
-  border-top: 1px solid rgba(31,58,42,.12);
+  border-top: 1px solid rgba(16,32,22,.18);
 }
 @media (max-width: 860px) {
   .hero { grid-template-columns: 1fr; min-height: auto; }
   .hero__visual { min-height: 55vh; order: -1; }
-  .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .bericht--has-image { grid-template-columns: 1fr; }
+  .bericht img { min-height: 12rem; aspect-ratio: 16/9; }
 }
